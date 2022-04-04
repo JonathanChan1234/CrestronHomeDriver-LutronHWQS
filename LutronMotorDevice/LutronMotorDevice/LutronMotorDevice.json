@@ -1,0 +1,60 @@
+{
+  "CrestronSerialDeviceApi": {
+    "DeviceSupport": {
+      "SupportsFeedback": false,
+      "SupportsUsername": false,
+      "SupportsPassword": false
+    },
+    "DeviceSupport2": [],
+    "GeneralInformation": {
+      "DeviceType": "LutronMotorDevice",
+      "Manufacturer": "HKT",
+      "BaseModel": "Lutron Paired Device",
+      "VersionDate": "2021-04-28 12:31:36.000",
+      "DriverVersion": "8.0000.0009",
+      "SdkVersion": "2.9.1",
+      "Description": "Sample Platform Driver",
+      "Guid": "CA5BBC46-75DE-4f38-9422-E92EF46F1F5A",
+      "SupportedSeries": [ "Sample PairedDevice" ],
+      "SupportedModels": [ "Sample PairedDevice" ],
+      "ExtensionDeviceData": {
+        "IsExtensionDevice": true,
+        "IsMediaDevice": false,
+        "IsMediaSource": false
+      }
+    },
+    "Api": {
+      "SupportsConfigurationUpdate": false,
+      "Communication": {
+        "CommunicationType": 1,
+        "Protocol": -1,
+        "Baud": -1,
+        "Parity": -1,
+        "HwHandshake": -1,
+        "SwHandshake": -1,
+        "DataBits": 0,
+        "StopBits": -1,
+        "Port": 8080,
+        "EnableAutoPolling": false,
+        "EnableAutoReconnect": false,
+        "TimeBetweenCommands": 500,
+        "ResponseTimeout": 4000,
+        "WaitForResponse": false,
+        "IpProtocol": 0,
+        "IsUserAdjustable": false,
+        "Authentication": {
+          "Type": "None",
+          "Required": false
+        },
+        "IsSecure": false,
+        "UserAdjustableProperties": [],
+        "DeviceId": 0
+      },
+      "Feedback": {
+        "MinimumResponseTime": 80000,
+        "MaximumResponseTime": 160000
+      }
+    },
+    "UserAttributes": []
+  }
+}

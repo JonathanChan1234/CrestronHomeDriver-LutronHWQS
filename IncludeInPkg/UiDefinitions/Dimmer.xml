@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<uidefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://prd-use-rad-assets.azurewebsites.net/ExtensionsSchemaDefinition_v1_0.xsd">
+    <version ver="1.0"/>
+    <tile icon="{LightIcon}" status="{LightStateLabel}" action="command:ToggleLight" navigation="show:MainPage" showinhomepage="#false" showinroompage="#true"/>
+    <layouts>
+        <layout id="MainPage" title="^MainPageLabel">
+            <controls>
+                <toggleslider id="togglesliderid" label="^LightLabel" togglevalue="{LightState}" slidervalue="{LightLevel}" />
+            </controls>
+        </layout>
+    </layouts>
+    <alerts/>
+</uidefinition>

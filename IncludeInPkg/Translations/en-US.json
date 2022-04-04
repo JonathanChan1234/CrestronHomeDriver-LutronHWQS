@@ -1,0 +1,11 @@
+{
+    "MainPageTitle": "Main",
+    "LightLabel": "Light",
+    "Load": "Load",
+    "Connnected": "Connected",
+    "TabButtonLabel": "Tap",
+    "TabDisplayLabel": "Tap Count",
+    "RaiseShadeButton": "Raise",
+    "StopShadeButton": "Stop",
+    "LowerShadeButton": "Lower"
+}

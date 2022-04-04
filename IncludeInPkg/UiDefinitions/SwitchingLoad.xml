@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<uidefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://prd-use-rad-assets.azurewebsites.net/ExtensionsSchemaDefinition_v1_0.xsd">
+    <version ver="1.0"/>
+    <tile icon="{LoadIcon}" status="{LoadStateLabel}" action="command:ToggleLoad"  showinhomepage="#false" showinroompage="#true"/>
+    <layouts>
+        <layout id="MainPage" title="^MainPageLabel">
+            <controls>
+                <toggle id="togglesliderid" label="^Load" value="{LoadState}" />
+            </controls>
+        </layout>
+    </layouts>
+    <alerts/>
+</uidefinition>
