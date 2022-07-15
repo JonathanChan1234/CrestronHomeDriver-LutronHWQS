@@ -6,8 +6,8 @@ namespace LutronHWQSGateway
 {
     public static class LutronCommand
     {
-        public static CommandSet LoginCommand = CommandSetBuilder("login", "testadmin");
-        public static CommandSet PasswordCommand = CommandSetBuilder("password", "Hktha6823");
+        public static CommandSet LoginCommand = CommandSetBuilder("login", "lutron");
+        public static CommandSet PasswordCommand = CommandSetBuilder("password", "integration");
         public static CommandSet MonitoringCommand = CommandSetBuilder("monitoring", "#MONITORING,5,1");
         public static CommandSet ZoneControlCommand(int id, int brightness)
         {

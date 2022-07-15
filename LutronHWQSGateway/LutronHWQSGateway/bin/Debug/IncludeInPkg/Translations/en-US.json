@@ -7,5 +7,9 @@
     "TabDisplayLabel": "Tap Count",
     "RaiseShadeButton": "Raise",
     "StopShadeButton": "Stop",
-    "LowerShadeButton": "Lower"
+    "LowerShadeButton": "Lower",
+    "RaiseAllShadeButton": "Raise All ",
+    "StopAllShadeButton": "Stop All",
+    "LowerAllShadeButton": "Lower All",
+    "ShadeListLabel": "Shade List"
 }

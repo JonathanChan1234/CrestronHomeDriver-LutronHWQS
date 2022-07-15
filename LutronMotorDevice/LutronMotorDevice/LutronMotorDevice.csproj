@@ -33,8 +33,9 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Crestron.DeviceDrivers.API">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\Crestron.DeviceDrivers.API.dll</HintPath>
+    <Reference Include="Crestron.DeviceDrivers.API, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\Crestron.DeviceDrivers.API.dll</HintPath>
     </Reference>
     <Reference Include="Crestron.DeviceDrivers.Core">
       <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\Crestron.DeviceDrivers.Core.dll</HintPath>
@@ -93,50 +94,65 @@
     <Reference Include="Crestron.SimplSharpPro.UI, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
       <HintPath>..\packages\Crestron.SimplSharp.SDK.ProgramLibrary.2.18.65\lib\net47\Crestron.SimplSharpPro.UI.dll</HintPath>
     </Reference>
-    <Reference Include="CrestronCertifiedDriverResourcesLibrary">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\CrestronCertifiedDriverResourcesLibrary.dll</HintPath>
+    <Reference Include="CrestronCertifiedDriverResourcesLibrary, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\CrestronCertifiedDriverResourcesLibrary.dll</HintPath>
     </Reference>
-    <Reference Include="IrAvReceiver">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\IrAvReceiver.dll</HintPath>
+    <Reference Include="IrAvReceiver, Version=8.0.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\IrAvReceiver.dll</HintPath>
     </Reference>
-    <Reference Include="IrAVSwitcher">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\IrAVSwitcher.dll</HintPath>
+    <Reference Include="IrAVSwitcher, Version=8.0.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\IrAVSwitcher.dll</HintPath>
     </Reference>
-    <Reference Include="IrBlurayPlayer">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\IrBlurayPlayer.dll</HintPath>
+    <Reference Include="IrBlurayPlayer, Version=8.0.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\IrBlurayPlayer.dll</HintPath>
     </Reference>
-    <Reference Include="IrCableBox">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\IrCableBox.dll</HintPath>
+    <Reference Include="IrCableBox, Version=8.0.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\IrCableBox.dll</HintPath>
     </Reference>
-    <Reference Include="IrDisplay">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\IrDisplay.dll</HintPath>
+    <Reference Include="IrDisplay, Version=8.0.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\IrDisplay.dll</HintPath>
     </Reference>
-    <Reference Include="IrVideoServer">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\IrVideoServer.dll</HintPath>
+    <Reference Include="IrVideoServer, Version=8.0.11.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\IrVideoServer.dll</HintPath>
     </Reference>
-    <Reference Include="RADAVReceiver">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\RADAVReceiver.dll</HintPath>
+    <Reference Include="RADAVReceiver, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\RADAVReceiver.dll</HintPath>
     </Reference>
-    <Reference Include="RADBlurayPlayer">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\RADBlurayPlayer.dll</HintPath>
+    <Reference Include="RADBlurayPlayer, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\RADBlurayPlayer.dll</HintPath>
     </Reference>
-    <Reference Include="RADCableBox">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\RADCableBox.dll</HintPath>
+    <Reference Include="RADCableBox, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\RADCableBox.dll</HintPath>
     </Reference>
-    <Reference Include="RADCommon">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\RADCommon.dll</HintPath>
+    <Reference Include="RADCommon, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\RADCommon.dll</HintPath>
     </Reference>
-    <Reference Include="RADDisplay">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\RADDisplay.dll</HintPath>
+    <Reference Include="RADDisplay, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\RADDisplay.dll</HintPath>
     </Reference>
-    <Reference Include="RADProTransports">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\RADProTransports.dll</HintPath>
+    <Reference Include="RADProTransports, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\RADProTransports.dll</HintPath>
     </Reference>
-    <Reference Include="RADSecuritySystem">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\RADSecuritySystem.dll</HintPath>
+    <Reference Include="RADSecuritySystem, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\RADSecuritySystem.dll</HintPath>
     </Reference>
-    <Reference Include="RADVideoServer">
-      <HintPath>..\..\..\..\Desktop\Crestron\Crestron Drivers\crestrondriverssdk_8_0000_0012\SDK\Libraries\RADVideoServer.dll</HintPath>
+    <Reference Include="RADVideoServer, Version=8.0.0.8, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\Desktop\Crestron\crestron_drivers_sdk_v14.0000.0008\SDK\Libraries\RADVideoServer.dll</HintPath>
     </Reference>
     <Reference Include="SimplSharpAutoUpdateInterface, Version=1.0.0.0, Culture=neutral, PublicKeyToken=1099c178b3b54c3b, processorArchitecture=MSIL">
       <HintPath>..\packages\Crestron.SimplSharp.SDK.Library.2.18.65\lib\net47\SimplSharpAutoUpdateInterface.dll</HintPath>

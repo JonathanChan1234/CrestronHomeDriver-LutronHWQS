@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uidefinition xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="https://prd-use-rad-assets.azurewebsites.net/ExtensionsSchemaDefinition_v1_0.xsd">
+    <version ver="1.0" />
+    <tile icon="#icShadesOpen" status="{MotorStateLabel}" action="command:RaiseLower" navigation="show:MainPage" showinhomepage="#false" showinroompage="#true" />
+    <layouts>
+        <layout id="MainPage" title="^MainPageLabel">
+            <controls>
+                <button id="raiseAllShadeId" label="^RaiseAllShadeButton" icon="#icShadesOpen" action="command:RaiseAll" />
+                <button id="stopAllShadeId" label="^StopAllShadeButton" icon="#icShadesSemiOpen" action="command:StopAll" />
+                <button id="lowerAllShadeId" label="^LowerAllShadeButton" icon="#icShadesClosed" action="command:LowerAll" />
+                <listbutton id="shadeListId" label="^ShadeListLabel" source="{ShadeList}" itemlabel="{.Name}" navigation="show:ShadePage" navigationparameters="{.}" />
+            </controls>
+        </layout>
+        <layout id="ShadePage" inputparameters="$Shade" title="$Shade.Name">
+            <controls>
+                <button id="raiseShadeId" label="^RaiseShadeButton" icon="#icShadesOpen" action="command:Raise" actionparameters="$Shade.Id" />
+                <button id="stopShadeId" label="^StopShadeButton" icon="#icShadesSemiOpen" action="command:Stop" actionparameters="$Shade.Id" />
+                <button id="lowerShadeId" label="^LowerShadeButton" icon="#icShadesClosed" action="command:Lower" actionparameters="$Shade.Id" />
+            </controls>
+        </layout>
+    </layouts>
+    <alerts />
+</uidefinition>

@@ -11,12 +11,12 @@
       "Manufacturer": "Jonathan",
       "BaseModel": "LutronHWQSGateway",
       "VersionDate": "2021-04-28 12:31:36.000",
-      "DriverVersion": "8.0000.0104",
+      "DriverVersion": "1.0000.9013",
       "SdkVersion": "3.0.0",
       "Description": "Sample Platform Driver",
       "Guid": "CA5BBC46-75DE-4f38-9422-E92EF46F1F5A",
       "SupportedSeries": [ "LutronHWQSGateway" ],
-      "SupportedModels": [ "Sample Platform" ]
+      "SupportedModels": [ "LutronHWQSGateway" ]
     },
     "Api": {
       "SupportsConfigurationUpdate": false,
@@ -29,11 +29,11 @@
         "SwHandshake": -1,
         "DataBits": 0,
         "StopBits": -1,
-        "Port": 8080,
+        "Port": 23,
         "EnableAutoPolling": false,
         "EnableAutoReconnect": false,
         "TimeBetweenCommands": 500,
-        "ResponseTimeout": 4000,
+        "ResponseTimeout": 30000,
         "WaitForResponse": false,
         "IpProtocol": 0,
         "IsUserAdjustable": false,

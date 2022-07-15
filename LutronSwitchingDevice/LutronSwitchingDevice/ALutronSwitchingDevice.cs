@@ -6,10 +6,7 @@ using Crestron.RAD.DeviceTypes.ExtensionDevice;
 using Crestron.RAD.DeviceTypes.Gateway;
 using Crestron.SimplSharp.CrestronIO;
 using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 
 namespace LutronSwitchingDevice
 {
@@ -105,7 +102,6 @@ namespace LutronSwitchingDevice
             string.Empty);
         }
 
-
         protected override string GetUiDefinition(string uiFolderPath)
         {
             var uiFilePath = Path.Combine(uiFolderPath, "SwitchingLoad.xml");
@@ -181,7 +177,6 @@ namespace LutronSwitchingDevice
 
         protected override IOperationResult SetDriverPropertyValue<T>(string objectId, string propertyKey, T value)
         {
-
             return new OperationResult(OperationResultCode.Success);
 
         }

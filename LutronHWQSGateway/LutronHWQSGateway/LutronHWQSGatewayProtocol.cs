@@ -1,12 +1,15 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Xml.Serialization;
 using Crestron.RAD.Common.BasicDriver;
 using Crestron.RAD.Common.Enums;
+using Crestron.RAD.Common.Events;
 using Crestron.RAD.Common.Transports;
 using Crestron.RAD.DeviceTypes.Gateway;
 using Crestron.SimplSharp;
 using LutronMotorDevice;
 using LutronSwitchingDevice;
+using System.Xml;
 
 namespace LutronHWQSGateway
 {
@@ -15,14 +18,13 @@ namespace LutronHWQSGateway
         #region Fields
         private bool _isLoginDone = false;
         private bool _monitoringCommandSent = false;
-        private CTimer _sendLoginCommandTimer;
-        private CTimer _sendPasswordCommandTimer;
 
         private readonly Dictionary<int, ALutronSwitchingDevice> _switches =
             new Dictionary<int, ALutronSwitchingDevice>();
 
         private readonly Dictionary<int, ALutronMotorDevice> _motors =
                    new Dictionary<int, ALutronMotorDevice>();
+        private CCriticalSection _pairedDevicesLock = new CCriticalSection();
 
         #endregion
 
@@ -32,74 +34,111 @@ namespace LutronHWQSGateway
             : base(transport, id)
         {
             ValidateResponse = GatewayValidateResponse;
-            ALutronSwitchingDevice[] _switchList = new ALutronSwitchingDevice[] {
-                new ALutronSwitchingDevice(40, "BAL1-1", SwitchLoadType.ExhaustFan),
-                new ALutronSwitchingDevice(41, "BAL1-2", SwitchLoadType.Hood),
-                new ALutronSwitchingDevice(42, "BAL2-1", SwitchLoadType.Light),
-                new ALutronSwitchingDevice(43, "BAL2-2", SwitchLoadType.WaterHeater)
-            };
-            ALutronMotorDevice[] _motorList = new ALutronMotorDevice[]
-            {
-                new ALutronMotorDevice(46, "Motor-46"),
-                new ALutronMotorDevice(47, "Motor-47"),
-                new ALutronMotorDevice(44, "Motor-48"),
-                new ALutronMotorDevice(45, "Motor-49")
-            };
-            foreach (var _switch in _switchList)
-            {
-                _switch.SetConnectionStatus(true);
-                AddSwitchPairedDevice(_switch);
-                _switch.PowerStateChangedEvent += PowerStateChangeEventHandler;
-            }
-            foreach (var motor in _motorList)
-            {
-                motor.SetConnectionStatus(true);
-                AddMotorPairedDevice(motor);
-                motor.MotorActionEvent += MotorActionEventHandler;
-            }
-            _sendLoginCommandTimer = new CTimer(SendLoginCommand, Timeout.Infinite);
-            _sendPasswordCommandTimer = new CTimer(SendPasswordCommand, Timeout.Infinite);
+            SendDiscoveryRequest();
+            // AddTestDevices();
         }
 
-        private void MotorActionEventHandler(object sender, Crestron.RAD.Common.Events.ValueEventArgs<MotorAction> e)
+        private ValidatedRxData GatewayValidateResponse(string response, CommonCommandGroupType commandGroup)
         {
-            try
+            return new ValidatedRxData(true, response);
+        }
+
+        private void AddTestDevices()
+        {
+            var device = new ALutronSwitchingDevice(100, "test", SwitchLoadType.ExhaustFan);
+            device.SetConnectionStatus(true);
+            AddSwitchPairedDevice(device);
+            device.PowerStateChangedEvent += PowerStateChangeEventHandler;
+            List<Shade> shades = new List<Shade>()
+                                     {
+                                         new Shade(101, "test motor 1"),
+                                         new Shade(102, "test motor 2")
+                                     };
+            var motor = new ALutronMotorDevice(101, "motor test", shades);
+            motor.SetConnectionStatus(true);
+            AddMotorPairedDevice(motor);
+            motor.MotorActionEvent += MotorActionEventHandler;
+        }
+
+        private void SendDiscoveryRequest()
+        {
+            XmlSerializer serializer = new XmlSerializer(typeof(Project));
+            using (XmlTextReader reader = new XmlTextReader("http://192.168.86.201/DbXmlInfo.xml"))
             {
-                ALutronMotorDevice device = (ALutronMotorDevice)sender;
-                int id = device.Id;
-                Log($"Device sent to Gateway: Button pressed event handler: {e.Value}, Received from {id}");
-                if (_isLoginDone)
-                    SendCommand(LutronCommand.MotorControlCommmand(id, e.Value));
-            }
-            catch (Exception error)
-            {
-                if (EnableLogging)
+                try
                 {
-                    Log($"Button Pressed Event in Gateway Protocol");
-                    Log(error.Message);
+                    var project = (Project)serializer.Deserialize(reader);
+                    // TODO: Change it to recursively searching devices later
+                    foreach (var area in project.Areas.Area[0].Areas.Area[0].Areas.Area)
+                    {
+                        List<Shade> shades = new List<Shade>();
+                        foreach (var output in area.Outputs.Output)
+                        {
+                            bool valid = int.TryParse(output.IntegrationID, out int integrationId);
+                            if (!valid) continue;
+                            if (output.OutputType == "NON_DIM_INC")
+                            {
+                                var device = new ALutronSwitchingDevice(integrationId, output.Name, SwitchLoadType.ExhaustFan);
+                                device.SetConnectionStatus(true);
+                                AddSwitchPairedDevice(device);
+                                device.PowerStateChangedEvent += PowerStateChangeEventHandler;
+                            }
+                            if (output.OutputType == "MOTOR")
+                            {
+                                var shade = new Shade(integrationId, output.Name);
+                                shades.Add(shade);
+                            }
+                        }
+                        if (shades.Count > 0)
+                        {
+                            var device = new ALutronMotorDevice(shades[0].Id, area.Name, shades);
+                            device.SetConnectionStatus(true);
+                            AddMotorPairedDevice(device);
+                            device.MotorActionEvent += MotorActionEventHandler;
+                        }
+                    }
+                }
+                catch (Exception err)
+                {
+                    CrestronConsole.PrintLine(err.Message);
                 }
             }
         }
+        #endregion
 
-        private void PowerStateChangeEventHandler(object sender, Crestron.RAD.Common.Events.ValueEventArgs<bool> e)
+        #region Log Helper
+        private void InfoLog(string title, string message)
         {
-            try
+            if (EnableLogging) Log($"{title}: {message}");
+        }
+
+        private void ErrorLog(string error, string message)
+        {
+            if (EnableLogging) Log($"{error}: {message}");
+        }
+        #endregion
+
+        #region Event Handler of Extension Devices
+        private void MotorActionEventHandler(object sender, ValueEventArgs<MotorActionArgs> e)
+        {
+            InfoLog("MotorActionEventHandler", $"sent from extension driver, isLoginDone: {_isLoginDone}");
+            ALutronMotorDevice device = (ALutronMotorDevice)sender;
+            // if (!_isLoginDone) return;
+            foreach (var shade in e.Value.Shades)
             {
-                ALutronSwitchingDevice device = (ALutronSwitchingDevice)sender;
-                int id = device.Id;
-                Log($"Device sent to Gateway: Button pressed event handler: {e.Value}, Received from {id}");
-                Log($"IsLoginDone: {_isLoginDone}");
-                if (_isLoginDone)
-                    SendCommand(LutronCommand.ZoneControlCommand(id, e.Value ? 100 : 0));
+                SendCommand(LutronCommand.MotorControlCommmand(shade.Id, e.Value.Action));
+                InfoLog("MotorActionEventHandler", $"{shade.Id} set to action {e.Value.Action}");
             }
-            catch (Exception error)
-            {
-                if (EnableLogging)
-                {
-                    Log($"Button Pressed Event in Gateway Protocol");
-                    Log(error.Message);
-                }
-            }
+        }
+
+        private void PowerStateChangeEventHandler(object sender, ValueEventArgs<bool> e)
+        {
+            InfoLog("MotorActionEventHandler", $"sent from extension driver, isLoginDone: {_isLoginDone}");
+            ALutronSwitchingDevice device = (ALutronSwitchingDevice)sender;
+            int id = device.Id;
+            // if (!_isLoginDone) return;
+            SendCommand(LutronCommand.ZoneControlCommand(id, e.Value ? 100 : 0));
+            InfoLog("PowerStateChangeEventHandler", $"Device sent to Gateway: Button pressed event handler: {e.Value}, Received from {id}");
         }
         #endregion
 
@@ -111,20 +150,21 @@ namespace LutronHWQSGateway
             switch (args.Type)
             {
                 case EventType.Login:
-                    Log("Sending Login command");
+                    InfoLog("ChooseDeconstructMethod: Login Event", "Sending Login Command");
+                    SendCommand(LutronCommand.LoginCommand);
                     _monitoringCommandSent = false;
-                    _sendLoginCommandTimer.Reset(5000);
                     break;
                 case EventType.Password:
-                    Log("Sending Password command");
+                    InfoLog("ChooseDeconstructMethod: Password Event", "Sending Password Command");
+                    SendCommand(LutronCommand.PasswordCommand);
                     _monitoringCommandSent = false;
-                    _sendPasswordCommandTimer.Reset(5000);
                     break;
                 case EventType.Prompt:
+                    InfoLog("ChooseDeconstructMethod: Prompt Received", "Set LoginDone to true");
                     _isLoginDone = true;
                     if (!_monitoringCommandSent)
                     {
-                        Log("Sending Monitoring command");
+                        InfoLog("ChooseDeconstructMethod", "Sending Monitoring Command");
                         SendCommand(LutronCommand.MonitoringCommand);
                     }
                     break;
@@ -138,11 +178,11 @@ namespace LutronHWQSGateway
                     ALutronSwitchingDevice device;
                     _switches.TryGetValue((int)integrationId, out device);
                     if (device == null) return;
-                    Log($"Feedback recevied from Gateway: {(int)brightness} (Integration ID: {device.Id}");
+                    InfoLog($"Feedback recevied from Gateway:", $"Brightness: {(int)brightness} (Integration ID: {device.Id}");
                     device.SetPower(brightness > 0);
                     break;
                 case EventType.Error:
-                    if (EnableLogging) Log(args.Message);
+                    ErrorLog("ChooseDeconstructMethod: Command Error", args.Message);
                     break;
             }
         }
@@ -160,7 +200,31 @@ namespace LutronHWQSGateway
                 _pairedDevice.SetConnectionStatus(true);
             }
         }
-
+        public override void Dispose()
+        {
+            try
+            {
+                _pairedDevicesLock.Enter();
+                foreach (var device in _switches.Values)
+                {
+                    if (device is IDisposable)
+                        ((IDisposable)device).Dispose();
+                }
+                foreach (var device in _motors.Values)
+                {
+                    if (device is IDisposable)
+                        ((IDisposable)device).Dispose();
+                }
+                Log("Remove all the devices in the list");
+                _switches.Clear();
+                _motors.Clear();
+            }
+            finally
+            {
+                _pairedDevicesLock.Leave();
+            }
+            base.Dispose();
+        }
         #endregion
 
         #region Public Members
@@ -175,7 +239,6 @@ namespace LutronHWQSGateway
         {
             if (EnableLogging) Log("Disconnected from Lutron Telnet Server");
         }
-
         #endregion
 
         #region Private Members
@@ -221,59 +284,20 @@ namespace LutronHWQSGateway
             }
         }
 
-        private void RemovePairedDevice(ALutronSwitchingDevice pairedDevice)
+        private void RemovePairedSwitchingDevice(ALutronSwitchingDevice pairedDevice)
         {
             if (_switches.ContainsKey(pairedDevice.Id))
             {
                 RemovePairedDevice(pairedDevice.Id.ToString());
             }
         }
-
-        private ValidatedRxData GatewayValidateResponse(string response, CommonCommandGroupType commandGroup)
+        private void RemovePairedMotorDevice(ALutronMotorDevice pairedDevice)
         {
-            return new ValidatedRxData(true, response);
+            if (_motors.ContainsKey(pairedDevice.Id))
+            {
+                RemovePairedDevice(pairedDevice.Id.ToString());
+            }
         }
         #endregion
-
-        private void SendLoginCommand(object command)
-        {
-            SendCommand(LutronCommand.LoginCommand);
-        }
-
-        private void SendPasswordCommand(object command)
-        {
-            SendCommand(LutronCommand.PasswordCommand);
-        }
-        private void SendMonitoringCommand(object command)
-        {
-            SendCommand(LutronCommand.MonitoringCommand);
-        }
-
-        public override void Dispose()
-        {
-            _sendLoginCommandTimer.Stop();
-            _sendPasswordCommandTimer.Stop();
-            try
-            {
-                foreach (var device in _switches.Values)
-                {
-                    if (device is IDisposable)
-                        ((IDisposable)device).Dispose();
-                }
-                foreach (var device in _motors.Values)
-                {
-                    if (device is IDisposable)
-                        ((IDisposable)device).Dispose();
-                }
-                Log("Remove all the devices in the list");
-                _switches.Clear();
-                _motors.Clear();
-            }
-            finally
-            {
-            }
-
-            base.Dispose();
-        }
     }
 }
