@@ -18,6 +18,7 @@ namespace LutronHWQSGateway
         #region Fields
         private bool _isLoginDone = false;
         private bool _monitoringCommandSent = false;
+        private string _host;
 
         private readonly Dictionary<int, ALutronSwitchingDevice> _switches =
             new Dictionary<int, ALutronSwitchingDevice>();
@@ -30,12 +31,12 @@ namespace LutronHWQSGateway
 
         #region Initialization
 
-        public LutronHWQSGatewayProtocol(ISerialTransport transport, byte id)
+        public LutronHWQSGatewayProtocol(ISerialTransport transport, byte id, string host)
             : base(transport, id)
         {
             ValidateResponse = GatewayValidateResponse;
+            _host = host;
             SendDiscoveryRequest();
-            // AddTestDevices();
         }
 
         private ValidatedRxData GatewayValidateResponse(string response, CommonCommandGroupType commandGroup)
@@ -63,7 +64,7 @@ namespace LutronHWQSGateway
         private void SendDiscoveryRequest()
         {
             XmlSerializer serializer = new XmlSerializer(typeof(Project));
-            using (XmlTextReader reader = new XmlTextReader("http://192.168.86.201/DbXmlInfo.xml"))
+            using (XmlTextReader reader = new XmlTextReader($"http://{_host}/DbXmlInfo.xml"))
             {
                 try
                 {
@@ -122,7 +123,6 @@ namespace LutronHWQSGateway
         private void MotorActionEventHandler(object sender, ValueEventArgs<MotorActionArgs> e)
         {
             InfoLog("MotorActionEventHandler", $"sent from extension driver, isLoginDone: {_isLoginDone}");
-            ALutronMotorDevice device = (ALutronMotorDevice)sender;
             // if (!_isLoginDone) return;
             foreach (var shade in e.Value.Shades)
             {

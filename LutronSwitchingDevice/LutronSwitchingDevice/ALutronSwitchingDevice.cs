@@ -69,6 +69,8 @@ namespace LutronSwitchingDevice
         private bool _loadState;
         private SwitchLoadType _loadType;
 
+        private ALutronSwitchingProtocol _protocol;
+
         #region property
         private PropertyValue<string> _iconProperty;
         private PropertyValue<string> _loadStateLabelProperty;
@@ -100,6 +102,41 @@ namespace LutronSwitchingDevice
             BaseModel,
             DriverData.CrestronSerialDeviceApi.GeneralInformation.DeviceType,
             string.Empty);
+
+            ConnectionTransport = new DummyTransport();
+            _protocol = new ALutronSwitchingProtocol(ConnectionTransport, 0x1);
+            _protocol.IconChangeEvent += IconChangeEventHandler;
+            DeviceProtocol = _protocol;
+
+            AddUserAttribute(
+               UserAttributeType.Custom,
+               Constants.ICON_ATTRIBUTE,
+               "Icon",
+               $"{Constants.LIGHT}/{Constants.EXHAUST_FAN}/{Constants.HOOD}/{Constants.WATER_HEATER}",
+               true,
+               UserAttributeRequiredForConnectionType.Before,
+               UserAttributeDataType.String,
+               Constants.LIGHT);
+        }
+
+        public void IconChangeEventHandler(object sender, string value)
+        {
+            switch (value)
+            {
+                case Constants.EXHAUST_FAN:
+                    _loadType = SwitchLoadType.ExhaustFan;
+                    break;
+                case Constants.HOOD:
+                    _loadType = SwitchLoadType.Hood;
+                    break;
+                case Constants.WATER_HEATER:
+                    _loadType = SwitchLoadType.WaterHeater;
+                    break;
+                case Constants.LIGHT:
+                    _loadType = SwitchLoadType.Light;
+                    break;
+            }
+            SetPower(_loadState);
         }
 
         protected override string GetUiDefinition(string uiFolderPath)

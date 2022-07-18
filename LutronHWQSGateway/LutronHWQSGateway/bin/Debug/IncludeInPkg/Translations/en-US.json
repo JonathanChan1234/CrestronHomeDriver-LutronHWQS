@@ -11,5 +11,8 @@
     "RaiseAllShadeButton": "Raise All ",
     "StopAllShadeButton": "Stop All",
     "LowerAllShadeButton": "Lower All",
-    "ShadeListLabel": "Shade List"
+    "ShadeListLabel": "Shade List",
+    "SettingButton": "Setting",
+    "ShadeSettingLabel": "Shade Setting",
+    "ShadeNameEntryLabel": "Shade Name"
 }

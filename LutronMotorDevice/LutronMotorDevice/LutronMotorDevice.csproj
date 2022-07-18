@@ -204,6 +204,8 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ALutronMotorDevice.cs" />
+    <Compile Include="ALutronMotorProtocol.cs" />
+    <Compile Include="DummyTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

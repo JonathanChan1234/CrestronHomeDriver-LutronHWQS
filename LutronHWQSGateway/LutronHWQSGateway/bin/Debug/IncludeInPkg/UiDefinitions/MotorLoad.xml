@@ -16,6 +16,12 @@
                 <button id="raiseShadeId" label="^RaiseShadeButton" icon="#icShadesOpen" action="command:Raise" actionparameters="$Shade.Id" />
                 <button id="stopShadeId" label="^StopShadeButton" icon="#icShadesSemiOpen" action="command:Stop" actionparameters="$Shade.Id" />
                 <button id="lowerShadeId" label="^LowerShadeButton" icon="#icShadesClosed" action="command:Lower" actionparameters="$Shade.Id" />
+                <button id="toSettingButtonId" label="^SettingButton" icon="#icSettings" navigation="show:SettingPage" navigationparameters="$Shade" />
+            </controls>
+        </layout>
+        <layout id="SettingPage" inputparameters="$Shade" title="$Shade.Name" subtitle="^ShadeSettingLabel">
+            <controls>
+                <textentry id="shadeNameEntryId" label="^ShadeNameEntryLabel" value="$Shade.Name" />
             </controls>
         </layout>
     </layouts>

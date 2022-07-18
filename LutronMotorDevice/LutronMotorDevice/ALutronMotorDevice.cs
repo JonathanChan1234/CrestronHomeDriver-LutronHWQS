@@ -70,6 +70,7 @@ namespace LutronMotorDevice
         private List<Shade> _shades;
 
         #region property
+        private ALutronMotorProtocol _protocol;
         private PropertyValue<string> _motorStateLabelProperty;
 
         private ClassDefinition _shadeClass;
@@ -80,6 +81,8 @@ namespace LutronMotorDevice
 
         private readonly GatewayPairedDeviceInformation _pairedDeviceInfo;
         public event EventHandler<ValueEventArgs<MotorActionArgs>> MotorActionEvent;
+        private IDictionary<int, ObjectValue> _shadeObjectInstance = new Dictionary<int, ObjectValue>();
+        private IDictionary<string, Shade> _shadeDict = new Dictionary<string, Shade>();
 
         public ALutronMotorDevice(int id, string name, List<Shade> shades)
         {
@@ -103,7 +106,28 @@ namespace LutronMotorDevice
             _shadeClass.AddProperty(new PropertyDefinition(ShadeIdKey, string.Empty, DevicePropertyType.Int32));
             _shadeList = CreateList(new PropertyDefinition(ShadeListKey, string.Empty, DevicePropertyType.ObjectList, _shadeClass));
 
-            CreateShadeList(shades);
+            InitShadeList(shades);
+            ConnectionTransport = new DummyTransport();
+            _protocol = new ALutronMotorProtocol(ConnectionTransport, 0x1);
+            _protocol.MotorNameChangeEvent += MotorNameChangeEventHandler;
+            DeviceProtocol = _protocol;
+        }
+
+        public void MotorNameChangeEventHandler(object sender, MotorNameChangeEventArgs args)
+        {
+            bool validId = int.TryParse(args.Id, out int id);
+            if (!validId) return;
+            bool validObj = _shadeObjectInstance.TryGetValue(id, out ObjectValue obj);
+            if (!validObj) return;
+            UpdateShade(obj, id, args.Name);
+        }
+
+        private void UpdateShade(ObjectValue obj, int id, string name)
+        {
+            if (EnableLogging) Log($"Update shade (id: {id}) name to {name}");
+            obj.GetValue<int>(ShadeIdKey).Value = id;
+            obj.GetValue<string>(ShadeNameKey).Value = name;
+            Commit();
         }
 
         private void SetMotorState(MotorAction action)
@@ -123,7 +147,7 @@ namespace LutronMotorDevice
             Commit();
         }
 
-        private void CreateShadeList(List<Shade> shades)
+        private void InitShadeList(List<Shade> shades)
         {
             _shadeList.Clear();
             foreach (var shade in shades)
@@ -132,11 +156,24 @@ namespace LutronMotorDevice
                 obj.GetValue<string>(ShadeNameKey).Value = shade.Name;
                 obj.GetValue<int>(ShadeIdKey).Value = shade.Id;
                 _shadeList.AddObject(obj);
+
+                _shadeObjectInstance.Add(shade.Id, obj);
+                _shadeDict.Add(obj.Id, shade);
+
+                AddUserAttribute(
+               UserAttributeType.Custom,
+               shade.Id.ToString(),
+               $"Name for {shade.Name}",
+               $"The name for {shade.Name}",
+               true,
+               UserAttributeRequiredForConnectionType.After,
+               UserAttributeDataType.String,
+               shade.Name);
             }
             Commit();
         }
 
-        private void controlShade(string[] parameters, MotorAction action)
+        private void ControlShade(string[] parameters, MotorAction action)
         {
             if (parameters.Length < 1) return;
             var idString = parameters[0];
@@ -190,13 +227,13 @@ namespace LutronMotorDevice
                     MotorActionEvent?.Invoke(this, new ValueEventArgs<MotorActionArgs>(new MotorActionArgs(_shades, MotorAction.Lower)));
                     break;
                 case RaiseCommand:
-                    controlShade(parameters, MotorAction.Raise);
+                    ControlShade(parameters, MotorAction.Raise);
                     break;
                 case StopCommand:
-                    controlShade(parameters, MotorAction.Stop);
+                    ControlShade(parameters, MotorAction.Stop);
                     break;
                 case LowerCommand:
-                    controlShade(parameters, MotorAction.Lower);
+                    ControlShade(parameters, MotorAction.Lower);
                     break;
             }
             return new OperationResult(OperationResultCode.Success);
@@ -209,7 +246,18 @@ namespace LutronMotorDevice
 
         protected override IOperationResult SetDriverPropertyValue<T>(string objectId, string propertyKey, T value)
         {
-            return new OperationResult(OperationResultCode.Error, "this method is not implemented");
+            Shade shade;
+            if (!_shadeDict.TryGetValue(objectId, out shade)) return new OperationResult(OperationResultCode.Error, "The shade you are trying to modify does not exist.");
+            switch (propertyKey)
+            {
+                case ShadeNameKey:
+                    if (!_shadeObjectInstance.TryGetValue(shade.Id, out ObjectValue obj)) break;
+                    var name = value as string;
+                    SetUserAttribute(shade.Id.ToString(), name);
+                    UpdateShade(obj, shade.Id, name);
+                    return new OperationResult(OperationResultCode.Success);
+            }
+            return new OperationResult(OperationResultCode.Error, "The shade you are trying to modify does not exist.");
         }
 
 
@@ -242,18 +290,19 @@ namespace LutronMotorDevice
         public List<string> GetShadeNames()
         {
             List<string> shadeNameList = new List<string>();
-            foreach (var shade in _shades)
+            foreach (var shade in _shadeObjectInstance)
             {
-                shadeNameList.Add(shade.Name);
+                shadeNameList.Add(shade.Value.GetValue<string>(ShadeNameKey).Value);
             }
             return shadeNameList;
         }
 
         private Shade GetShadeByName(string name)
         {
-            foreach (var shade in _shades)
+            foreach (var shade in _shadeObjectInstance)
             {
-                if (shade.Name.Equals(name)) return shade;
+                if (shade.Value.GetValue<string>(ShadeNameKey).Value.Equals(name))
+                    return new Shade(Id, name);
             }
             return null;
         }

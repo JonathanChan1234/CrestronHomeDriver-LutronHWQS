@@ -204,6 +204,9 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ALutronSwitchingDevice.cs" />
+    <Compile Include="ALutronSwitchingProtocol.cs" />
+    <Compile Include="Constants.cs" />
+    <Compile Include="DummyTransport.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>

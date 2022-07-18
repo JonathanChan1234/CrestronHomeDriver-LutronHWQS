@@ -39,7 +39,7 @@ namespace LutronHWQSGateway
             transport.Initialize(ipAddress, port);
             ConnectionTransport = transport;
 
-            Protocol = new LutronHWQSGatewayProtocol(ConnectionTransport, Id)
+            Protocol = new LutronHWQSGatewayProtocol(ConnectionTransport, Id, ipAddress.ToString())
             {
                 EnableLogging = InternalEnableLogging,
                 CustomLogger = InternalCustomLogger
@@ -58,7 +58,7 @@ namespace LutronHWQSGateway
             };
             tcpTransport.Initialize(address, port);
             ConnectionTransport = tcpTransport;
-            Protocol = new LutronHWQSGatewayProtocol(tcpTransport, Id)
+            Protocol = new LutronHWQSGatewayProtocol(tcpTransport, Id, address)
             {
                 EnableLogging = EnableLogging,
                 CustomLogger = CustomLogger
