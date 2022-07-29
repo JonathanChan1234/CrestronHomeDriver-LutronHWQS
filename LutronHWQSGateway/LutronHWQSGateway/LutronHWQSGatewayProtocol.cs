@@ -23,8 +23,8 @@ namespace LutronHWQSGateway
         private readonly Dictionary<int, ALutronSwitchingDevice> _switches =
             new Dictionary<int, ALutronSwitchingDevice>();
 
-        private readonly Dictionary<int, ALutronMotorDevice> _motors =
-                   new Dictionary<int, ALutronMotorDevice>();
+        private readonly Dictionary<string, ALutronMotorDevice> _motors =
+                   new Dictionary<string, ALutronMotorDevice>();
         private CCriticalSection _pairedDevicesLock = new CCriticalSection();
 
         #endregion
@@ -44,65 +44,37 @@ namespace LutronHWQSGateway
             return new ValidatedRxData(true, response);
         }
 
-        private void AddTestDevices()
-        {
-            var device = new ALutronSwitchingDevice(100, "test", SwitchLoadType.ExhaustFan);
-            device.SetConnectionStatus(true);
-            AddSwitchPairedDevice(device);
-            device.PowerStateChangedEvent += PowerStateChangeEventHandler;
-            List<Shade> shades = new List<Shade>()
-                                     {
-                                         new Shade(101, "test motor 1"),
-                                         new Shade(102, "test motor 2")
-                                     };
-            var motor = new ALutronMotorDevice(101, "motor test", shades);
-            motor.SetConnectionStatus(true);
-            AddMotorPairedDevice(motor);
-            motor.MotorActionEvent += MotorActionEventHandler;
-        }
-
         private void SendDiscoveryRequest()
         {
-            XmlSerializer serializer = new XmlSerializer(typeof(Project));
-            using (XmlTextReader reader = new XmlTextReader($"http://{_host}/DbXmlInfo.xml"))
+            try
             {
-                try
+                XmlSerializer serializer = new XmlSerializer(typeof(Project));
+                using (XmlTextReader reader = new XmlTextReader($"http://{_host}/DbXmlInfo.xml"))
                 {
                     var project = (Project)serializer.Deserialize(reader);
-                    // TODO: Change it to recursively searching devices later
-                    foreach (var area in project.Areas.Area[0].Areas.Area[0].Areas.Area)
+                    var shadeGroup = new Dictionary<string, List<Shade>>();
+                    var swithces = new List<ALutronSwitchingDevice>();
+                    SerializeHelper.GetShadeGroupAndSwitchHelper(project.Areas, "", shadeGroup, swithces);
+                    foreach (var group in shadeGroup)
                     {
-                        List<Shade> shades = new List<Shade>();
-                        foreach (var output in area.Outputs.Output)
-                        {
-                            bool valid = int.TryParse(output.IntegrationID, out int integrationId);
-                            if (!valid) continue;
-                            if (output.OutputType == "NON_DIM_INC")
-                            {
-                                var device = new ALutronSwitchingDevice(integrationId, output.Name, SwitchLoadType.ExhaustFan);
-                                device.SetConnectionStatus(true);
-                                AddSwitchPairedDevice(device);
-                                device.PowerStateChangedEvent += PowerStateChangeEventHandler;
-                            }
-                            if (output.OutputType == "MOTOR")
-                            {
-                                var shade = new Shade(integrationId, output.Name);
-                                shades.Add(shade);
-                            }
-                        }
-                        if (shades.Count > 0)
-                        {
-                            var device = new ALutronMotorDevice(shades[0].Id, area.Name, shades);
-                            device.SetConnectionStatus(true);
-                            AddMotorPairedDevice(device);
-                            device.MotorActionEvent += MotorActionEventHandler;
-                        }
+                        var device = new ALutronMotorDevice(group.Key, group.Key, group.Value);
+                        device.SetConnectionStatus(true);
+                        AddMotorPairedDevice(device);
+                        device.MotorActionEvent += MotorActionEventHandler;
+                    }
+
+                    foreach (var device in swithces)
+                    {
+                        device.SetConnectionStatus(true);
+                        AddSwitchPairedDevice(device);
+                        device.PowerStateChangedEvent += PowerStateChangeEventHandler;
                     }
                 }
-                catch (Exception err)
-                {
-                    CrestronConsole.PrintLine(err.Message);
-                }
+            }
+            catch (Exception err)
+            {
+                // This would catch the network error
+                Logger.Error(err.Message);
             }
         }
         #endregion

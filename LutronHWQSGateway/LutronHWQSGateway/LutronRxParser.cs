@@ -21,22 +21,14 @@ namespace LutronHWQSGateway
             {
                 string[] parameters = rx.Split(new char[] { ',' });
                 if (parameters.Length > 4) return new LutronRXEventArgs($"Invalid parameter length: {rx}");
-                try
-                {
-                    int id = int.Parse(parameters[1]);
-                    int actionId = int.Parse(parameters[2]);
-                    if (actionId != 1) return new LutronRXEventArgs($"Invalid action id {actionId}");
-                    double brightness = double.Parse(parameters[3]);
-                    return new LutronRXEventArgs(id, brightness);
-                }
-                catch (Exception e)
-                {
-                    return new LutronRXEventArgs($"Exception thrown: {e.Message}");
-                }
+                if (!int.TryParse(parameters[1], out int id)) return new LutronRXEventArgs($"Invalid Id {parameters[1]}");
+                if (!int.TryParse(parameters[2], out int actionId)) return new LutronRXEventArgs($"Invalid ActionId {parameters[2]}");
+                if (actionId != 1) return new LutronRXEventArgs($"Invalid action id {actionId}");
+                if (!double.TryParse(parameters[3], out double brightness)) return new LutronRXEventArgs($"Invalid brightness {parameters[3]}");
+                return new LutronRXEventArgs(id, brightness);
             }
             return new LutronRXEventArgs(EventType.Invalid);
         }
-
     }
 
     public class LutronRXEventArgs
@@ -60,6 +52,7 @@ namespace LutronHWQSGateway
 
         public LutronRXEventArgs(string message)
         {
+            Type = EventType.Error;
             Message = message;
         }
     }

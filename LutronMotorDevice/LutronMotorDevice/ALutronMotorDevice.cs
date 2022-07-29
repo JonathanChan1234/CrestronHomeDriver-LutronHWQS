@@ -15,9 +15,9 @@ namespace LutronMotorDevice
     {
         private readonly string _name;
 
-        public new int Id
+        public new string Id
         {
-            get { return _integrationId; }
+            get { return _id; }
         }
 
         public string Name
@@ -66,7 +66,7 @@ namespace LutronMotorDevice
         private const string ShadeIdKey = "Id";
         private const string ShadeListKey = "ShadeList";
 
-        private int _integrationId;
+        private string _id;
         private List<Shade> _shades;
 
         #region property
@@ -84,14 +84,14 @@ namespace LutronMotorDevice
         private IDictionary<int, ObjectValue> _shadeObjectInstance = new Dictionary<int, ObjectValue>();
         private IDictionary<string, Shade> _shadeDict = new Dictionary<string, Shade>();
 
-        public ALutronMotorDevice(int id, string name, List<Shade> shades)
+        public ALutronMotorDevice(string id, string name, List<Shade> shades)
         {
-            _integrationId = id;
+            _id = id;
             _name = name;
             _shades = shades;
 
             _pairedDeviceInfo = new GatewayPairedDeviceInformation(
-            id.ToString(),
+            id,
             name,
             Description,
             Manufacturer,
@@ -115,10 +115,8 @@ namespace LutronMotorDevice
 
         public void MotorNameChangeEventHandler(object sender, MotorNameChangeEventArgs args)
         {
-            bool validId = int.TryParse(args.Id, out int id);
-            if (!validId) return;
-            bool validObj = _shadeObjectInstance.TryGetValue(id, out ObjectValue obj);
-            if (!validObj) return;
+            if (!int.TryParse(args.Id, out int id)) return;
+            if (!_shadeObjectInstance.TryGetValue(id, out ObjectValue obj)) return;
             UpdateShade(obj, id, args.Name);
         }
 
@@ -164,7 +162,7 @@ namespace LutronMotorDevice
                UserAttributeType.Custom,
                shade.Id.ToString(),
                $"Name for {shade.Name}",
-               $"The name for {shade.Name}",
+               "",
                true,
                UserAttributeRequiredForConnectionType.After,
                UserAttributeDataType.String,
@@ -177,8 +175,7 @@ namespace LutronMotorDevice
         {
             if (parameters.Length < 1) return;
             var idString = parameters[0];
-            bool valid = int.TryParse(idString, out int id);
-            if (!valid) return;
+            if (!int.TryParse(idString, out int id)) return;
             List<Shade> shades = new List<Shade>
             {
                 new Shade(id, "shade")
@@ -246,8 +243,7 @@ namespace LutronMotorDevice
 
         protected override IOperationResult SetDriverPropertyValue<T>(string objectId, string propertyKey, T value)
         {
-            Shade shade;
-            if (!_shadeDict.TryGetValue(objectId, out shade)) return new OperationResult(OperationResultCode.Error, "The shade you are trying to modify does not exist.");
+            if (!_shadeDict.TryGetValue(objectId, out Shade shade)) return new OperationResult(OperationResultCode.Error, "The shade you are trying to modify does not exist.");
             switch (propertyKey)
             {
                 case ShadeNameKey:
@@ -301,8 +297,8 @@ namespace LutronMotorDevice
         {
             foreach (var shade in _shadeObjectInstance)
             {
-                if (shade.Value.GetValue<string>(ShadeNameKey).Value.Equals(name))
-                    return new Shade(Id, name);
+                if (!shade.Value.GetValue<string>(ShadeNameKey).Value.Equals(name)) continue;
+                if (_shadeDict.TryGetValue(shade.Value.Id, out Shade obj)) return obj;
             }
             return null;
         }
