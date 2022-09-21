@@ -6,6 +6,15 @@ namespace LutronHWQSGateway
 {
     static class SerializeHelper
     {
+
+        public static (IDictionary<string, List<Shade>> shadeGroup, List<ALutronSwitchingDevice> switches) GetShadeGroupsAndSwitch(Areas areas)
+        {
+            var shadeGroup = new Dictionary<string, List<Shade>>();
+            var switches = new List<ALutronSwitchingDevice>();
+            GetShadeGroupAndSwitchHelper(areas, "", shadeGroup, switches);
+            return (shadeGroup, switches);
+        }
+
         public static void GetShadeGroupAndSwitchHelper(Areas areas, string name, IDictionary<string, List<Shade>> shadeGroup, List<ALutronSwitchingDevice> switches)
         {
             // base case: if there the areas is null and there is no child under the current area

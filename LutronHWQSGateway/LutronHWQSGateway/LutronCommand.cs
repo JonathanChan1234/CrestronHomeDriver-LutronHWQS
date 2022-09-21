@@ -14,7 +14,7 @@ namespace LutronHWQSGateway
             return CommandSetBuilder("output", $"#OUTPUT,{id},1,{brightness},2");
         }
 
-        public static CommandSet MotorControlCommmand(int id, MotorAction action)
+        public static CommandSet MotorControlCommand(int id, MotorAction action)
         {
             switch (action)
             {

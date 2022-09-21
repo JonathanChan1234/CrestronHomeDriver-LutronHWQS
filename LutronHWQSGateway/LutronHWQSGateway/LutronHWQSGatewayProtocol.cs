@@ -25,6 +25,7 @@ namespace LutronHWQSGateway
 
         private readonly Dictionary<string, ALutronMotorDevice> _motors =
                    new Dictionary<string, ALutronMotorDevice>();
+        private readonly Dictionary<int, CTimer> _timerList = new Dictionary<int, CTimer>();
         private CCriticalSection _pairedDevicesLock = new CCriticalSection();
 
         #endregion
@@ -52,9 +53,7 @@ namespace LutronHWQSGateway
                 using (XmlTextReader reader = new XmlTextReader($"http://{_host}/DbXmlInfo.xml"))
                 {
                     var project = (Project)serializer.Deserialize(reader);
-                    var shadeGroup = new Dictionary<string, List<Shade>>();
-                    var swithces = new List<ALutronSwitchingDevice>();
-                    SerializeHelper.GetShadeGroupAndSwitchHelper(project.Areas, "", shadeGroup, swithces);
+                    var (shadeGroup, switches) = SerializeHelper.GetShadeGroupsAndSwitch(project.Areas);
                     foreach (var group in shadeGroup)
                     {
                         var device = new ALutronMotorDevice(group.Key, group.Key, group.Value);
@@ -63,7 +62,7 @@ namespace LutronHWQSGateway
                         device.MotorActionEvent += MotorActionEventHandler;
                     }
 
-                    foreach (var device in swithces)
+                    foreach (var device in switches)
                     {
                         device.SetConnectionStatus(true);
                         AddSwitchPairedDevice(device);
@@ -96,10 +95,29 @@ namespace LutronHWQSGateway
         {
             InfoLog("MotorActionEventHandler", $"sent from extension driver, isLoginDone: {_isLoginDone}");
             // if (!_isLoginDone) return;
-            foreach (var shade in e.Value.Shades)
+            if (e.Value.Shades.Count == 0) return;
+            SendCommand(LutronCommand.MotorControlCommand(e.Value.Shades[0].Id, e.Value.Action));
+
+            // Add delay to ensure all the command can be sent through transport class
+            for (int i = 1; i < e.Value.Shades.Count; ++i)
             {
-                SendCommand(LutronCommand.MotorControlCommmand(shade.Id, e.Value.Action));
-                InfoLog("MotorActionEventHandler", $"{shade.Id} set to action {e.Value.Action}");
+                int id = e.Value.Shades[i].Id;
+                if (!_timerList.ContainsKey(id))
+                {
+                    CTimer timer = new CTimer(SendMotorControlCommand, new MotorTimerArgs(id, e.Value.Action), i * 250);
+                    _timerList.Add(id, timer);
+                }
+            }
+        }
+
+        private void SendMotorControlCommand(object obj)
+        {
+            MotorTimerArgs args = obj as MotorTimerArgs;
+            SendCommand(LutronCommand.MotorControlCommand(args.Id, args.Action));
+            InfoLog("MotorActionEventHandler", $"{args.Id} set to action {args.Action}");
+            if (_timerList.ContainsKey(args.Id))
+            {
+                _timerList.Remove(args.Id);
             }
         }
 
@@ -271,5 +289,17 @@ namespace LutronHWQSGateway
             }
         }
         #endregion
+    }
+
+    public class MotorTimerArgs
+    {
+        public int Id;
+        public MotorAction Action;
+
+        public MotorTimerArgs(int id, MotorAction action)
+        {
+            Id = id;
+            Action = action;
+        }
     }
 }
